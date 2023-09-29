@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  rp:
+    build: ./rp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - idp
+      
+  idp:
+    build: ./idp
+    ports:
+      - "3001:3001"
+    environment:
+      - ATTACKER_URL=https://eo3ffg9ftq57dog.m.pipedream.net
