@@ -71,7 +71,7 @@ page.locator('input[type="submit"][value="Yes"]').click()
         'client_id': 'attacker',
         'client_secret': 'secret'
     })
-    print(response.json())
+    assert(response.json().get('access_token') != None)
 
 except Exception as e:
     print('Error:', e)
