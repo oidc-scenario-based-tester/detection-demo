@@ -13,4 +13,4 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - ATTACKER_URL=https://eo3ffg9ftq57dog.m.pipedream.net
+      - ATTACKER_URL=https://8b8a4f6763b5907a2949f3a21e277bbc.m.pipedream.net
