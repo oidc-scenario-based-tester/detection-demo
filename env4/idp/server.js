@@ -180,6 +180,7 @@ app.post('/token', (req, res) => {
     token_type: 'Bearer',
     expires_in: 3600,
     id_token: idToken,
+    scope: authDetails.scope,
   });
 });
 

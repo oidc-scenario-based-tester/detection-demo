@@ -40,9 +40,10 @@ app.get('/callback', async (req, res) => {
     });
     
     res.send(`<html>
+                <meta name="referrer" content="no-referrer-when-downgrade">
                 <body>
-                    <div>State: ${state}</div>
-                    <div>Response Data: <pre>${JSON.stringify(response.data, null, 2)}</pre></div>
+                    <div>Response Data: ${JSON.stringify(response.data, null, 2)}</div>
+                    <div>Scope: ${response.data.scope}</div>
                 </body>
               </html>`);
   } catch (error) {
