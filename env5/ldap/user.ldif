@@ -1,0 +1,23 @@
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: uid=testuser1,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: testuser1
+cn: testuser1
+sn: testuser1
+userPassword: {SSHA}a4483ce7bd7083999bef6a74117a443239e67fac
+
+dn: uid=testuser2,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: testuser2
+cn: testuser2
+sn: testuser2
+userPassword: {SSHA}f901fbc1ca36036957cef4bdea152832ef89fb33
