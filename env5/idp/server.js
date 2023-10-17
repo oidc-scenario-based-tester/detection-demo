@@ -45,6 +45,17 @@ const clients = {
 const users = {};
 const codes = {};
 
+// 初期ユーザーを追加
+async function addInitialUser() {
+  const userId = 'testuser1';
+  const password = 'password1';
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users[userId] = { userId, password: hashedPassword };
+}
+
+// 初期ユーザーを追加するための関数呼び出し
+addInitialUser();
+
 const FILTER_PATTERN_ORG = "(&(objectclass=inetOrgPerson)(uid={0}))";
 app.get('/.well-known/webfinger', (req, res) => {
   const { resource, rel } = req.query;
@@ -69,7 +80,15 @@ app.get('/.well-known/webfinger', (req, res) => {
 
     result.on('end', (result) => {
       if (found) {
-        res.status(200).send('Found');
+        res.json({
+          subject: `acct:${userSuppliedResource}`,
+          links: [
+            {
+              rel: "http://openid.net/specs/connect/1.0/issuer",
+              href: "http://localhost:3001/authorize"
+            }
+          ]
+        });
       } else {
         res.status(404).send('Not Found');
       }
