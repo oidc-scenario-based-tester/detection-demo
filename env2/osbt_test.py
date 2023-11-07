@@ -2,8 +2,6 @@ import sys
 import os
 import requests
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../osbtlib'))
-
 from osbtlib import BrowserSimulator, Osbtlib
 
 # set endpoints

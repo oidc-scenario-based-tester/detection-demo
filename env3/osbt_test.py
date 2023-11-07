@@ -3,8 +3,6 @@ import os
 import requests
 import urllib
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../osbtlib'))
-
 from osbtlib import BrowserSimulator, Osbtlib
 
 HONEST_RP_ENDPOINT = "http://localhost:3000"
