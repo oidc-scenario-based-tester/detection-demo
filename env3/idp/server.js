@@ -4,12 +4,27 @@ const session = require('express-session');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
+const ldap = require('ldapjs');
 
 const app = express();
 const port = 3001;
 
 const secret = crypto.randomBytes(32).toString('hex');
+
+const LDAP_BIND_DN = "cn=admin,dc=example,dc=com";
+const LDAP_BIND_PASSWORD = "password";
+
+const ldapClient = ldap.createClient({
+  url: 'ldap://ldap:389'
+});
+
+ldapClient.bind(LDAP_BIND_DN, LDAP_BIND_PASSWORD, err => {
+  if (err) {
+    console.error("Error binding to LDAP:", err);
+  } else {
+    console.log("Successfully bound to LDAP");
+  }
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,37 +45,60 @@ const clients = {
 const users = {};
 const codes = {};
 
-app.post('/client/register', (req, res) => {
-  const { clientName, redirectUri, clientSecret, logoUri } = req.body;
+// 初期ユーザーを追加
+async function addInitialUser() {
+  const userId = 'testuser1';
+  const password = 'password1';
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users[userId] = { userId, password: hashedPassword };
+}
 
-  if (clients[clientName]) {
-    return res.status(400).send('Client Name is already taken');
+// 初期ユーザーを追加するための関数呼び出し
+addInitialUser();
+
+const FILTER_PATTERN_ORG = "(&(objectclass=inetOrgPerson)(uid={0}))";
+app.get('/.well-known/webfinger', (req, res) => {
+  const { resource, rel } = req.query;
+
+  if (rel !== 'http://openid.net/specs/connect/1.0/issuer') {
+    return res.status(400).send('Invalid rel parameter');
   }
 
-  clients[clientName] = {
-    secret: clientSecret,
-    redirectUris: [redirectUri],
-    logoUri: logoUri || null,
-  };
+  // エスケープ処理をせずに直接LDAPフィルタに挿入
+  // /.well-known/webfinger?resource=http://x/t*&rel=http://openid.net/specs/connect/1.0/issuer => Found
+  // /.well-known/webfinger?resource=http://x/a*&rel=http://openid.net/specs/connect/1.0/issuer => Not Found
+  const userSuppliedResource = resource.replace('http://x/', '');
+  const sfilter = FILTER_PATTERN_ORG.replace('{0}', userSuppliedResource);
+  console.log('Generated filter:', sfilter);
 
-  res.send('Client registration successful!');
-});
+  ldapClient.search('ou=people,dc=example,dc=com', { filter: sfilter, scope: 'sub' }, (err, result) => {
+    let found = false;
+    result.on('searchEntry', (entry) => {
+      console.log('entry: ' + JSON.stringify(entry.object));
+      found = true;
+    });
 
-app.get('/client/logo', async (req, res) => {
-  const { clientName } = req.query;
+    result.on('end', (result) => {
+      if (found) {
+        res.json({
+          subject: `acct:${userSuppliedResource}`,
+          links: [
+            {
+              rel: "http://openid.net/specs/connect/1.0/issuer",
+              href: "http://localhost:3001/authorize"
+            }
+          ]
+        });
+      } else {
+        res.status(404).send('Not Found');
+      }
+    });
 
-  if (!clients[clientName] || !clients[clientName].logoUri) {
-    return res.status(404).send('Client or Logo URI not found');
-  }
-
-  try {
-    const response = await axios.get(clients[clientName].logoUri, { responseType: 'arraybuffer' });
-    res.set('Content-Type', response.headers['content-type']);
-    res.send(response.data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error fetching the logo');
-  }
+    result.on('error', (err) => {
+      console.error('Error searching LDAP:', err);
+      res.status(500).send('Internal server error');
+    });
+  });
 });
 
 app.get('/register', (req, res) => {
@@ -133,26 +171,17 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/consent', (req, res) => {
-  if (!req.session.userId || !req.session.authDetails) {
-    return res.status(400).send('Not logged in or No auth details in session. <a href="/login">Login here</a>');
-  }
-
-  const clientName = req.session.authDetails.client_id;
-  const client = clients[clientName];
-  let logoUriHtml = '';
-  if (client && client.logoUri) {
-    logoUriHtml = `<img src="/client/logo?clientName=${clientName}" alt="Client Logo" />`;
-  }
-
-  res.send(`
-    ${logoUriHtml} <!-- logo画像を表示 -->
-    <img src="/client/logo?clientName=${clientName}"
-    <form method="POST" action="/consent">
-      <p>Do you consent to share your information with ${clientName}?</p>
-      <input type="submit" value="Yes" name="consent" />
-      <input type="submit" value="No" name="consent" />
-    </form>
-  `);
+    if (!req.session.userId) {
+      return res.status(400).send('Not logged in. <a href="/login">Login here</a>');
+    }
+  
+    res.send(`
+      <form method="POST" action="/consent">
+        <p>Do you consent to share your information with the client?</p>
+        <input type="submit" value="Yes" name="consent" />
+        <input type="submit" value="No" name="consent" />
+      </form>
+    `);
 });
 
 app.post('/consent', (req, res) => {

@@ -12,3 +12,13 @@ services:
     build: ./idp
     ports:
       - "3001:3001"
+    depends_on:
+      - ldap
+    command: /bin/sh -c "sleep 10 && node server.js"
+    
+
+  ldap:
+    build: ./ldap
+    ports:
+      - "389:389"
+      - "636:636"
