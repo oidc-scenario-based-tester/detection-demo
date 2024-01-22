@@ -30,6 +30,11 @@ Environment containing CSRF vulnerability.
 
 RP does not perform CSRF protection, allowing an attacker to tie the victim's session to the attacker's one.
 
+### [env7](./env7)
+Environment containing ID spoofing vulnerability.
+
+An attacker can modify the `id_token` to impersonate the victim.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
