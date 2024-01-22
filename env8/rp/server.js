@@ -58,18 +58,19 @@ app.get('/auth/callback', async (req, res) => {
     // validate ID token
     const idToken = response.data.id_token;
     const decoded = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
+    console.log(decoded);
 
     // validate issuer
-    // if (decoded.iss !== 'http://localhost:9997/') {
-    //   res.status(403).send('Invalid issuer');
-    //   return;
-    // }
-
-    // validate audience
-    if (decoded.aud !== clientID) {
-      res.status(403).send('Invalid audience');
+    if (decoded.iss !== 'http://localhost:9997/') {
+      res.status(403).send('Invalid issuer');
       return;
     }
+
+    // validate audience
+    // if (decoded.aud !== clientID) {
+    //   res.status(403).send('Invalid audience');
+    //   return;
+    // }
 
     res.send(response.data);
 

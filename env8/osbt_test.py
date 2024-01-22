@@ -22,7 +22,7 @@ osbt = Osbtlib(
 
 try:
     # create malicious id_token
-    malicious_id_token = jwt.encode({"iss": "https://example.com", "aud": "web", "sub": "hoge"}, key="", algorithm="none")
+    malicious_id_token = jwt.encode({"iss": "http://localhost:9997/", "aud": "hoge", "sub": "hoge"}, key="", algorithm="none")
 
     # send order to attacker op
     res = osbt.attacker_op.replace_id_token(malicious_id_token)

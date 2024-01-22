@@ -33,7 +33,12 @@ RP does not perform CSRF protection, allowing an attacker to tie the victim's se
 ### [env7](./env7)
 Environment containing ID spoofing vulnerability.
 
-An attacker can modify the `id_token` to impersonate the victim.
+An attacker can modify the `iss` or `sub` of `id_token` to impersonate the victim.
+
+### [env8](./env8)
+Environment containing Wrong Recipient vulnerability.
+
+An attacker can modify the `aud` of `id_token` to impersonate the victim.
 
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
