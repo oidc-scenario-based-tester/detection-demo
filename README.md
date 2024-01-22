@@ -20,6 +20,11 @@ Environment containing RP's XSS and IdP's authorization code consumption flaws.
 
 By exploiting these vulnerabilities in a chain, an attacker can steal a victim's valid authorization code.
 
+### [env5](./env5)
+Environment containing open redirect vulnerability.
+
+Since `/authorize` don't perform `redirect_uri` validation, an attacker can steal the user's authorization code by redirecting the user to an attacker's `redirect_uri`.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
