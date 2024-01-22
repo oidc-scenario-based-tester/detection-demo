@@ -1,10 +1,20 @@
 const express = require('express');
+const session = require('express-session');
 const axios = require('axios');
 const crypto = require('crypto');
 const qs = require('querystring');
 
 const app = express();
 const port = 3000;
+
+const secret = crypto.randomBytes(32).toString('hex');
+
+app.use(session({
+  secret: secret,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } 
+}));
 
 const clientID = 'client';
 const clientSecret = 'secret';
@@ -19,12 +29,18 @@ app.get('/login', (req, res) => {
   url.searchParams.set('redirect_uri', redirectUri);
   url.searchParams.set('state', state);
   url.searchParams.set('scope', 'openid');
+
+  req.session.state = state;
   
   res.redirect(url.toString());
 });
 
 app.get('/callback', async (req, res) => {
   const { code, state } = req.query;
+
+  if (state !== req.session.state) {
+    return res.status(403).send('Invalid state');
+  }
 
   try {
     const response = await axios.post(`${idpUrl}/token`, qs.stringify({

@@ -29,6 +29,22 @@ const clients = {
 const users = {};
 const codes = {};
 
+// 初期ユーザーを追加
+async function addInitialUser() {
+  let userId = 'guest';
+  let password = 'guest';
+  let hashedPassword = await bcrypt.hash(password, 10);
+  users[userId] = { userId, password: hashedPassword };
+
+  userId = 'attacker';
+  password = 'attacker';
+  hashedPassword = await bcrypt.hash(password, 10);
+  users[userId] = { userId, password: hashedPassword };
+}
+
+// 初期ユーザーを追加するための関数呼び出し
+addInitialUser();
+
 app.get('/register', (req, res) => {
     res.send(`
       <form method="POST" action="/register">
