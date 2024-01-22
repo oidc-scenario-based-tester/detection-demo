@@ -25,6 +25,11 @@ Environment containing open redirect vulnerability.
 
 Since `/authorize` don't perform `redirect_uri` validation, an attacker can steal the user's authorization code by redirecting the user to an attacker's `redirect_uri`.
 
+### [env6](./env6)
+Environment containing CSRF vulnerability.
+
+RP does not perform CSRF protection, allowing an attacker to tie the victim's session to the attacker's one.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
