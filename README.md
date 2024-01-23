@@ -40,6 +40,11 @@ Environment containing Wrong Recipient vulnerability.
 
 An attacker can modify the `aud` of `id_token` to impersonate the victim.
 
+### [env9](./env9)
+Environment containing ID Token Replay vulnerability.
+
+An attacker can replay the `id_token` to impersonate the victim.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
