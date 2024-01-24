@@ -45,6 +45,11 @@ Environment containing ID Token Replay vulnerability.
 
 An attacker can replay the `id_token` to impersonate the victim.
 
+### [env10](./env10)
+Environment containing IdP Confusion vulnerability.
+
+An attacker can confuse the victim to use the attacker's IdP and steal the victim's authorization code of the honest IdP.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
