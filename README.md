@@ -50,6 +50,11 @@ Environment containing IdP Confusion vulnerability.
 
 An attacker can confuse the victim to use the attacker's IdP and steal the victim's authorization code of the honest IdP.
 
+### [env11](./env11)
+Environment containing Malicious Endpoint vulnerability.
+
+An attacker can confuse the victim to use the attacker's malicious token endpoint and steal the victim's authorization code.
+
 ## References
 - https://portswigger.net/research/hidden-oauth-attack-vectors
 - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27582
